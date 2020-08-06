@@ -46,11 +46,11 @@ def label_creator(x):
     return label
 
 
-day_1_change = [label_creator(change) for change in price["1-Day"]]
+day_1_change = [label_creator(change) for change in prices["1-Day"]]
 
-day_2_change = [label_creator(change) for change in price["2-Day"]]
+day_2_change = [label_creator(change) for change in prices["2-Day"]]
 
-day_4_change = [label_creator(change) for change in price["4-Day"]]
+day_4_change = [label_creator(change) for change in prices["4-Day"]]
 
 #############################################################################
 
@@ -65,3 +65,7 @@ with open("2_day_change.txt", 'w') as file:
 with open("4_day_change.txt", 'w') as file:
     for item in day_4_change:
         file.write("%s\n" % item)
+
+
+
+

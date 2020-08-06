@@ -39,14 +39,6 @@ features["Year"] = data_1.iloc[:,15]
 features["Quarter"] = data_1.iloc[:,16]
 features["Filing Date"] = data_1.iloc[:,18]
 
-features = features[features["Ticker"] != "CMVT"]
-
-features = features[features["Ticker"] != "CYNK"]
-
-features = features.drop(list(range(1925,1926)))
-
-features = features.drop(list(range(4783,4786)))
-
 #############################################################################
 
 # We first create an empty dataframe to store our output
