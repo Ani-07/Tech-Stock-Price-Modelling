@@ -131,7 +131,7 @@ for ticker in avg_tick.keys():
 ############################################################################
 
 remove_list = ["RTKHQ", "KTEC", "KULR","EXAC", "EDGW", "XPLR", "SOYL", "XRM", 
-               "MYOS", "SEH", "CMVT"]
+               "MYOS", "SEH", "CMVT", "OCLG"]
 
 for ticker in remove_list:
     features = features[features["Ticker Symbol"] != ticker]

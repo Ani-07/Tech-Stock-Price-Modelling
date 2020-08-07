@@ -126,6 +126,6 @@ for i in range(N):
 
 ##############################################################################
 
-labels_data.to_csv("tech_price_data.csv", index = False)
+labels_data.to_csv("tech_price_data_2.csv", index = False)
 
 
