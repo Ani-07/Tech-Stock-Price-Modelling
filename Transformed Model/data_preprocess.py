@@ -11,9 +11,9 @@ Created on Fri Jul 24 15:50:04 2020
 
 # We will explore our transformed feature list and process for model building
 
-# Input: sec_feat_transformed
+# Input: Transformed Features
 
-# Output: feat_cleaned
+# Output: Cleaned and Transformed Features
 
 #############################################################################
 
@@ -105,7 +105,6 @@ for pair in high_corr:
     else:
         added.append(i)
         removed.append(j)
-
 
 sec_data_shrunk = sec_data.drop(sec_data.columns[removed], axis = 1)
 

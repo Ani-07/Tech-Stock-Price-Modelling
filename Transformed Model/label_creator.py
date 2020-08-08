@@ -31,7 +31,7 @@ Created on Thu Aug  6 13:50:36 2020
 
 import pandas as pd
 
-prices  = pd.read_csv("tech_price_data.csv")
+prices  = pd.read_csv("tech_price_data_2.csv")
 
 #############################################################################
 
