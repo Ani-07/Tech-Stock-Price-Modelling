@@ -24,10 +24,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import precision_score, recall_score
-from sklearn.model_selection import cross_val_score, cross_val_predict
-import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.metrics import classification_report
+from sklearn.model_selection import cross_val_score
 
 
 ##############################################################################
@@ -61,41 +60,22 @@ all(item == "Yes" for item in match_list)
 
 # Step 2 - Loading Labels and Features and creating a train/ test split
 
-file = open("1_day_change.txt", 'r')
+file = open("4_day_change.txt", 'r')
 labels = file.readlines()
 
 features  = pd.read_csv("features_proc.csv")
 
 labels = np.array(labels)
 
-#############################################################################
-
-np.any(np.isnan(features))
-
-np.where(np.isnan(features))
-
-
-
-
-
-
-
+print(np.any(np.isnan(features)))
 
 X_train, X_test, y_train, y_test = train_test_split(features, labels, 
                                                     test_size=0.2, random_state=42)
 
-#######################################################################################
-
-# Let us first understand the structure of our training labels
-
-tot = sum(y_train == 0) + sum(y_train == 1)
-neg = sum(y_train == 0)/tot
-pos = sum(y_train == 1)/tot
-        
-neg
-pos
-
+##############################################################################
 # MODEL BUILDING
+##############################################################################
+## Model 1 - Gaussian Naive Bayes
 
 #Create a Gaussian Classifier
 gnb = GaussianNB()
@@ -113,42 +93,119 @@ cross_val_score(gnb, X_train, y_train, cv=5, scoring="accuracy")
 
 # Build Confusion Matrix
 
-confusion_matrix(y_test, y_test)
+nb_conf = confusion_matrix(y_test, y_pred)
 
 ###############################################################################
 
-# Logistic Regression
+# Model 2 - Logistic Regression
 
-log_reg = LogisticRegression(random_state=0, max_iter = 1000)
+# Fit Model
+
+log_reg = LogisticRegression(random_state=0, max_iter = 2000)
 
 log_reg.fit(X_train, y_train)
 
-y_pred_log = log_reg.predict(X_test)
-
-
-confusion_matrix(y_test, y_pred_log)
+# Measure general accuracy of model with cross validation
 
 cross_val_score(log_reg, X_train, y_train, cv=5, scoring="accuracy")
 
+# Predict the response for test dataset
+y_pred_log = log_reg.predict(X_test)
 
-confusion_matrix(y_test, y_pred_log)
 
+# Build Confusion Matrix
+log_conf = confusion_matrix(y_test, y_pred_log)
 
 ##############################################################################
 
-# Boosting
+# Model 3 - Boosting
 
-from sklearn.ensemble import AdaBoostClassifier
+# Fit Model
 
 ada_boost = AdaBoostClassifier(n_estimators=1000, random_state=0, 
                                algorithm='SAMME', learning_rate = 0.5)
 
 ada_boost.fit(X_train, y_train)  
 
+# Measure general accuracy of model with cross validation
+
+cross_val_score(ada_boost, X_train, y_train, cv=5, scoring="accuracy")
+
+# Predict the response for test dataset
+
 y_pred_ab = ada_boost.predict(X_test)
 
-confusion_matrix(y_test, y_pred_ab)
+# Build Confusion Matrix
 
-ada_boost.n_classes_
+ab_conf = confusion_matrix(y_test, y_pred_ab)
 
+
+#############################################################################
+
+# Comparison of three models
+
+# We shall use the following methods to compare the 3 models:
+#  1) Precision Rate of predicting class 1 and-1
+#  2) Utility function
+
+#############################################################################
+
+# We use precision rate for only class 1 and -1 because we shall make decisions
+# only based on those classes and thus we measure the performance of how many
+# times we get the classes right
+
+print(classification_report(y_test, y_pred, digits=3))
+
+print(classification_report(y_test, y_pred_ab, digits=3))
+
+print(classification_report(y_test, y_pred_log, digits=3))
+
+#############################################################################
+
+# Utlity Function
+
+# We first create a utility matrix. The utility matrix shall depend on our 
+# trading strategy
+
+# We shall assume a trading stragey with stop loss and limit on gains as well
+
+##############################################################################
+# Prediction = Class 1
+
+# If our prediction is Class 1, we shall invest money and in case the price 
+# increases, we shall sell once the increase exceeds 2% as our prediction is 
+# that price will inrease atleast upto 2%
+
+# However, we shall also sell our share if price drops more than 1.5%
+
+# Correct Prediction = +2
+# Wrong PRediction (0 or -1) = -1.5
+
+##############################################################################
+# Prediction = Class 0
+
+# In such a case, we would take no action and thus we would be left with
+# opportunity loss
+
+# Correct Prediction = 0
+# Prediction of +1 or -1 = -2
+
+##############################################################################
+
+# Prediction = Class -1
+
+# This would be similar to the first case
+
+# Correct Prediction = +2
+# Prediction of +1 or 0 = -1.5
+
+#############################################################################
+
+util_matrix = np.matrix([[2,-1.5,-1.5],[0,0,0],[-1.5,-1.5,2]])
+
+print(np.sum(np.multiply(util_matrix, nb_conf)))
+
+print(np.sum(np.multiply(util_matrix, log_conf)))
+
+print(np.sum(np.multiply(util_matrix, ab_conf)))
 
